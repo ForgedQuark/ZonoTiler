@@ -8,7 +8,9 @@
 - Послойное построение ромбов через геометрическое восстановление вершин
 - Автоматическая раскраска ромбов случайными цветами
 - Визуализация через `matplotlib`
-
+## Dependencies
+- Python 3.x
+- [matplotlib](https://matplotlib.org/) (licensed under [MIT](https://github.com/matplotlib/matplotlib/blob/main/LICENSE))
 ## Пример запуска
 python zono_tiler.py или python3 zono_tiler.py
 # Введите k, чтобы получить симметрию n = 4*k + 2
