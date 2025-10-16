@@ -10,6 +10,6 @@
 - Визуализация через `matplotlib`
 
 ## Пример запуска
-python zono_tiler.py или python3.py
+python zono_tiler.py или python3 zono_tiler.py
 # Введите k, чтобы получить симметрию n = 4*k + 2
 # Например: k=0 → 2-fold (вырождено), k=1 → 6-fold, k=2 → 10-fold и т.д.
