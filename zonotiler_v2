@@ -1,0 +1,106 @@
+import math
+import matplotlib.pyplot as plt
+from math import sin, cos, pi, atan2, sqrt
+from random import randint
+def generate_polygon_and_diagonals(n=62, radius=1.0):
+    vertices = []
+    for i in range(n):
+        angle = 2 * math.pi * i / n
+        x = radius * math.cos(angle)
+        y = radius * math.sin(angle)
+        vertices.append((x, y))
+    diagonals = []
+    for i in range(n):
+        for j in range(i + 2, n):
+            if i == 0 and j == n - 1:
+                continue
+            diagonals.append((i, j))
+
+    print(f"Generated {len(diagonals)} diagonals for a regular {n}-gon.")
+    return vertices, diagonals
+def find_rhombus_vertices(A, C, side_length):
+    x1, y1 = A
+    x2, y2 = C
+    mx = (x1 + x2) / 2
+    my = (y1 + y2) / 2
+    dx = x2 - x1
+    dy = y2 - y1
+    ac_length = sqrt(dx**2 + dy**2)
+    if ac_length > 2 * side_length or ac_length == 0:
+        return None
+    other_diag_length = 2 * sqrt(side_length**2 - (ac_length/2)**2)
+    if ac_length > 0:
+        dx_norm = dx / ac_length
+        dy_norm = dy / ac_length
+    else:
+        dx_norm, dy_norm = 1, 0
+    perp_x = -dy_norm
+    perp_y = dx_norm
+    offset_x = perp_x * other_diag_length / 2
+    offset_y = perp_y * other_diag_length / 2
+    B = (mx + offset_x, my + offset_y)
+    return B
+def plot_diagonals(vertices, diagonals, length = 1, center_x = 0, center_y = 0):
+    fig, ax = plt.subplots(figsize=(15, 9))
+    ax.set_aspect('equal')
+    nfold = len(vertices)
+    pn=pi/nfold
+    sins = tuple([center_x+sin(2*pn*i)*length for i in range(0, nfold)])
+    coss = tuple([center_y+cos(2*pn*i)*length for i in range(0, nfold)])
+    xs = list(coss)
+    ys = list(sins)
+    side_length = sqrt((xs[1]-xs[0])**2+(ys[1]-ys[0])**2)
+    old_circles_x = xs[::2]
+    old_circles_y = ys[::2]
+    xs = xs[1::2]+old_circles_x
+    ys = ys[1::2]+old_circles_y
+    n =nfold//2
+    for circle_id in range((nfold-2)//4):
+        circles_x = []
+        circles_y = []
+        new_point = find_rhombus_vertices((old_circles_x[-1], old_circles_y[-1]), (old_circles_x[0], old_circles_y[0]), side_length)
+        circles_x.append(new_point[0])
+        circles_y.append(new_point[1])
+        for i in range(0, len(old_circles_x)-1):
+            new_point = find_rhombus_vertices((old_circles_x[i], old_circles_y[i]), (old_circles_x[i+1], old_circles_y[i+1]), side_length)
+            circles_x.append(new_point[0])
+            circles_y.append(new_point[1])
+        xs.extend(circles_x)
+        ys.extend(circles_y)
+        old_circles_x = tuple(circles_x)
+        old_circles_y = tuple(circles_y)
+    for i in range(n, len(xs)-n):
+        if (i+1)%n==0:
+            ax.fill([xs[i], xs[i+1], xs[i+1-n], xs[i-n]], [ys[i], ys[i+1], ys[i+1-n], ys[i-n]], color = (randint(0,223)/255, randint(0, 191)/255, randint(0, 255)/255))
+        else:
+            ax.fill([xs[i], xs[i+n+1], xs[i+1], xs[i-n]], [ys[i], ys[i+n+1], ys[i+1], ys[i-n]], color = (randint(0,223)/255, randint(0, 191)/255, randint(0, 255)/255))
+    minxs = min(xs)
+    maxxs = max(xs)
+    minys = min(ys)
+    maxys = max(ys)
+    print(f"Тут всего {len(xs)} точек")
+    plt.xlim(minxs*(1+0.4*((minxs<0)-0.5)), maxxs*(1+0.4*((maxxs>0)-0.5)))
+    plt.ylim(minys*(1+0.4*((minys<0)-0.5)), maxys*(1+0.4*((maxys>0)-0.5)))
+    xs = [v[0] for v in vertices]
+    ys = [v[1] for v in vertices]
+    ax.scatter(xs, ys, s=15, color='red', zorder=5)
+    for i, j in diagonals:
+        x_vals = [vertices[i][0], vertices[j][0]]
+        y_vals = [vertices[i][1], vertices[j][1]]
+        ax.plot(x_vals, y_vals, color='blue', linewidth=0.3, alpha=0.4)
+    ax.plot(xs + [xs[0]], ys + [ys[0]], 'k-', linewidth=0.8, zorder=3)
+    margin = 0.05
+    x_min, x_max = min(xs), max(xs)
+    y_min, y_max = min(ys), max(ys)
+    ax.set_xlim(x_min - margin*(x_max - x_min), x_max + margin*(x_max - x_min))
+    ax.set_ylim(y_min - margin*(y_max - y_min), y_max + margin*(y_max - y_min))
+
+    plt.title(f'All Diagonals of Regular {len(vertices)}-gon')
+# === Запуск ===
+if __name__ == "__main__":
+    n_input = int(input("Enter n (polygon will have 4*n + 2 sides): "))
+    n = 4 * n_input + 2
+    radius = 1
+    vertices, diagonals = generate_polygon_and_diagonals(n=n, radius=radius)
+    plot_diagonals(vertices, diagonals, radius)
+    plt.show()
